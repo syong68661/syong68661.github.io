@@ -1,0 +1,22 @@
+{{ define "main" }}
+  <section class="section-head">
+    <p class="eyebrow">Section</p>
+    <h1>{{ .Title }}</h1>
+    <p>{{ with .Params.description }}{{ . }}{{ else }}{{ .Summary }}{{ end }}</p>
+  </section>
+
+  <section class="stack">
+    {{ range .Pages.ByDate.Reverse }}
+      <article class="post-item">
+        <p class="post-meta">{{ .Date.Format "2006-01-02" }}</p>
+        <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+        <p>{{ .Summary }}</p>
+      </article>
+    {{ else }}
+      <article class="post-item">
+        <h2>Content is coming</h2>
+        <p>This section is ready. Add your first post here and it will appear automatically.</p>
+      </article>
+    {{ end }}
+  </section>
+{{ end }}

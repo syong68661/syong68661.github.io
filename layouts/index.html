@@ -1,0 +1,69 @@
+{{ define "main" }}
+  {{ $home := hugo.Data.home }}
+  <section class="hero">
+    <p class="eyebrow">{{ $home.hero.eyebrow }}</p>
+    <h1>{{ $home.hero.title }}</h1>
+    <p class="hero-text">{{ $home.hero.intro }}</p>
+    <div class="hero-meta">
+      {{ range $home.hero.meta }}
+        <span>{{ .label }}: {{ .value }}</span>
+      {{ end }}
+      {{ range $home.hero.links }}
+        <span><a href="{{ .url }}">{{ .label }}</a></span>
+      {{ end }}
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>成长路线</h2>
+      <p>从 408 基础到系统能力，再到更有工程深度的技术输出。</p>
+    </div>
+    <div class="grid grid-3">
+      {{ range $home.roadmap }}
+        <article class="card">
+          <h3>{{ .title }}</h3>
+          <p>{{ .body }}</p>
+        </article>
+      {{ end }}
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>当前栏目</h2>
+      <p>围绕 408 四科先把基础打稳，再逐步向工程与系统方向延展。</p>
+    </div>
+    <div class="grid grid-4">
+      {{ range $home.sections }}
+        {{ with site.GetPage .path }}
+          <a class="card link-card" href="{{ .RelPermalink }}">
+            <h3>{{ .Title }}</h3>
+            <p>{{ .Summary | default .Params.description }}</p>
+          </a>
+        {{ end }}
+      {{ end }}
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>最近文章</h2>
+      <p>有不合理的地方，还请见谅。</p>
+    </div>
+    <div class="stack">
+      {{ range first 5 (where site.RegularPages "Draft" false) }}
+        <article class="post-item">
+          <p class="post-meta">{{ .Date.Format "2006-01-02" }} · {{ .CurrentSection.Title }}</p>
+          <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
+          <p>{{ .Summary }}</p>
+        </article>
+      {{ else }}
+        <article class="post-item">
+          <h3>还没有已发布文章</h3>
+          <p>把文章中的 <code>draft = false</code> 打开后，这里就会自动显示。</p>
+        </article>
+      {{ end }}
+    </div>
+  </section>
+{{ end }}

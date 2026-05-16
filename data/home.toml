@@ -1,0 +1,50 @@
+[hero]
+eyebrow = "WORK HARD!LIVE HAPPY!"
+title = "SYong"
+intro = "记录基础知识、C++、Linux、系统与工程实践。"
+
+[[hero.links]]
+label = "GitHub"
+url = "https://github.com/syong68661"
+
+[[hero.links]]
+label = "Email"
+url = "mailto:syong68661@gmail.com"
+
+
+[[hero.meta]]
+label = "方向"
+value = "后端开发/系统/AI"
+
+[[hero.meta]]
+label = "学校"
+value = "西安建筑科技大学"
+
+[[hero.meta]]
+label = "位置"
+value = "陕西西安"
+
+[[roadmap]]
+title = "阶段1"
+body = "408 为核心。重点不是背定义，而是建立机制理解，写清楚为什么存在、怎么工作、容易错在哪。"
+
+[[roadmap]]
+title = "阶段2"
+body = "逐步补强 C++、Linux、网络编程和项目实践，把学习笔记升级成具备工程味道的技术输出。"
+
+[[roadmap]]
+title = "阶段3"
+body = "进入源码阅读和系统化成长阶段，开始整理 Redis、服务框架、AI Infra 等更深的工程主题。"
+
+[[sections]]
+path = "/数据结构"
+
+[[sections]]
+path = "/计算机组成原理"
+
+[[sections]]
+path = "/操作系统"
+
+[[sections]]
+path = "/计算机网络"
+

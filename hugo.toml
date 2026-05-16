@@ -1,0 +1,71 @@
+baseURL = "https://yourname.github.io/"
+locale = "zh-CN"
+defaultContentLanguage = "zh-cn"
+title = "SYong 的技术博客"
+timeZone = "Asia/Shanghai"
+enableRobotsTXT = true
+
+[pagination]
+  pagerSize = 8
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.extensions]
+      definitionList = true
+      footnote = true
+      linkify = true
+      strikethrough = true
+      table = true
+      taskList = true
+      [markup.goldmark.extensions.extras]
+        [markup.goldmark.extensions.extras.mark]
+  [markup.highlight]
+    codeFences = true
+    guessSyntax = true
+    lineNos = true
+    noClasses = false
+
+[taxonomies]
+  tag = "tags"
+  category = "categories"
+
+[permalinks]
+  "操作系统" = "/os/:slug/"
+  "数据结构" = "/data-structure/:slug/"
+  "计算机组成原理" = "/computer-organization/:slug/"
+  "计算机网络" = "/network/:slug/"
+
+[menu]
+  [[menu.main]]
+    name = "首页"
+    pageRef = "/"
+    weight = 10
+  [[menu.main]]
+    name = "操作系统"
+    pageRef = "/操作系统"
+    weight = 20
+  [[menu.main]]
+    name = "数据结构"
+    pageRef = "/数据结构"
+    weight = 30
+  [[menu.main]]
+    name = "计算机组成原理"
+    pageRef = "/计算机组成原理"
+    weight = 40
+  [[menu.main]]
+    name = "计算机网络"
+    pageRef = "/计算机网络"
+    weight = 50
+
+[params]
+  author = "SYong"
+  role = "408 / C++ / Linux / 系统方向"
+  description = "记录 408、C++、Linux、系统与工程实践的长期技术博客。"
+  email = "syong68661@gmail.com"
+  github = "https://github.com/syong68661"
+  location = "陕西西安"
+  school = "西安建筑科技大学"
+
+[caches]
+  [caches.images]
+    dir = ":cacheDir/images"

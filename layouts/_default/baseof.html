@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="{{ site.Language.Locale | default `zh-CN` }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} | {{ site.Title }}{{ end }}</title>
+  <meta name="description" content="{{ site.Params.description }}">
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="/">{{ site.Title }}</a>
+      <nav class="site-nav">
+        {{ range site.Menus.main }}
+          <a href="{{ .URL }}">{{ .Name }}</a>
+        {{ end }}
+      </nav>
+    </header>
+
+    <main class="site-main">
+      {{ block "main" . }}{{ end }}
+    </main>
+
+    <footer class="site-footer">
+      <p>{{ site.Params.author }} · {{ site.Params.role }}</p>
+      <p>Built with Hugo and deployed on GitHub Pages.</p>
+    </footer>
+  </div>
+</body>
+</html>
