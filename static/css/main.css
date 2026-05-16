@@ -210,6 +210,41 @@ pre {
   margin-top: 1.8em;
 }
 
+.content table {
+  width: 100%;
+  margin: 24px 0;
+  border-collapse: collapse;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: var(--shadow);
+}
+
+.content thead {
+  background: rgba(0, 95, 115, 0.1);
+}
+
+.content th,
+.content td {
+  padding: 14px 16px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line);
+}
+
+.content th {
+  font-weight: 700;
+}
+
+.content tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.content tbody tr:nth-child(even) {
+  background: rgba(0, 95, 115, 0.04);
+}
+
 .content pre {
   overflow-x: auto;
   padding: 16px;
@@ -274,5 +309,13 @@ pre {
   .article,
   .section-head {
     padding: 22px;
+  }
+
+  .content {
+    overflow-x: auto;
+  }
+
+  .content table {
+    min-width: 620px;
   }
 }

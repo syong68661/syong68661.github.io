@@ -1,7 +1,7 @@
 +++
 title = '{{ replace .File.ContentBaseName "-" " " }}'
-date = '{{ .Date }}'
-lastmod = '{{ .Date }}'
+date = 2026-05-17T10:00:00+08:00
+lastmod = 2026-05-17T10:00:00+08:00
 draft = true
 slug = '{{ .File.ContentBaseName }}'
 summary = ''
