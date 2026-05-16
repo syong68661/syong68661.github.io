@@ -2,7 +2,7 @@
 title = "Obsidian 到 Hugo 的写作注意事项"
 date = 2026-05-16T21:55:00+08:00
 lastmod = 2026-05-16T21:55:00+08:00
-draft = false
+draft = true
 slug = "obsidian-to-hugo-writing-notes"
 summary = "记录 Obsidian 写作迁移到 Hugo 时最常见的格式差异和推荐替代写法。"
 tags = ["Hugo", "Obsidian", "写作"]
