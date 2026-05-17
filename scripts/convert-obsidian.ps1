@@ -1,5 +1,6 @@
 param(
-  [string]$ContentRoot = "content"
+  [string]$ContentRoot = "content",
+  [string]$OutputRoot = ".hugo-content"
 )
 
 Set-StrictMode -Version Latest
@@ -29,7 +30,7 @@ function Get-FrontMatterValue {
 function Normalize-LinkKey {
   param([string]$Value)
 
-  return ($Value.Trim().ToLowerInvariant())
+  return $Value.Trim().ToLowerInvariant()
 }
 
 function Convert-ToAnchorId {
@@ -59,13 +60,18 @@ function Get-SectionPermalinkPrefix {
 }
 
 function Get-PageIdentity {
-  param([System.IO.FileInfo]$File)
+  param(
+    [System.IO.FileInfo]$File,
+    [string]$RootPath
+  )
 
   $text = Get-Content $File.FullName -Raw -Encoding utf8
   $title = Get-FrontMatterValue -Text $text -Key "title"
   $slug = Get-FrontMatterValue -Text $text -Key "slug"
 
-  $relative = Resolve-Path -LiteralPath $File.FullName | ForEach-Object { $_.Path.Substring((Resolve-Path $ContentRoot).Path.Length + 1) }
+  $resolvedRoot = (Resolve-Path -LiteralPath $RootPath).Path
+  $resolvedFile = (Resolve-Path -LiteralPath $File.FullName).Path
+  $relative = $resolvedFile.Substring($resolvedRoot.Length + 1)
   $parts = $relative -split '[\\/]'
   if ($parts.Length -lt 2) {
     return $null
@@ -85,47 +91,67 @@ function Get-PageIdentity {
   }
 }
 
-$contentPath = Resolve-Path -LiteralPath $ContentRoot
-$markdownFiles = Get-ChildItem $contentPath -Recurse -File -Include *.md
+function Escape-Html {
+  param([string]$Value)
 
-$pageMap = @{}
-foreach ($file in $markdownFiles) {
-  if ($file.Name -eq "_index.md") {
-    continue
+  if ($null -eq $Value) {
+    return ""
   }
 
-  $identity = Get-PageIdentity -File $file
-  if ($null -eq $identity) {
-    continue
-  }
-
-  foreach ($key in @($identity.Title, $identity.BundleName, $identity.Slug)) {
-    if ([string]::IsNullOrWhiteSpace($key)) {
-      continue
-    }
-
-    $normalized = Normalize-LinkKey $key
-    if (-not $pageMap.ContainsKey($normalized)) {
-      $pageMap[$normalized] = $identity.Permalink
-    }
-  }
+  return $Value.Replace("&", "&amp;").Replace('"', "&quot;").Replace("<", "&lt;").Replace(">", "&gt;")
 }
 
-$imageExtensions = @(".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".bmp")
+function Convert-ObsidianImage {
+  param(
+    [string]$Target,
+    [string]$Option
+  )
 
-foreach ($file in $markdownFiles) {
-  if ($file.Name -eq "obsi-hugo-writing-notes.md") {
-    continue
+  $alt = [System.IO.Path]::GetFileNameWithoutExtension($Target)
+  $attributes = @()
+
+  if (-not [string]::IsNullOrWhiteSpace($Option)) {
+    $trimmed = $Option.Trim()
+
+    if ($trimmed -match '^(?<width>\d+)$') {
+      $attributes += 'width="{0}"' -f $matches.width
+    }
+    elseif ($trimmed -match '^(?<width>\d+)px$') {
+      $attributes += 'width="{0}"' -f $matches.width
+    }
+    elseif ($trimmed -match '^(?<width>\d+)\s*[xX]\s*(?<height>\d+)$') {
+      $attributes += 'width="{0}"' -f $matches.width
+      $attributes += 'height="{0}"' -f $matches.height
+    }
+    else {
+      $alt = $trimmed
+    }
   }
 
-  $text = Get-Content $file.FullName -Raw -Encoding utf8
-  $original = $text
+  if ($attributes.Count -eq 0) {
+    return '![{0}]({1})' -f $alt, $Target
+  }
 
-  $text = [regex]::Replace($text, '!\[\[([^\]|]+)(?:\|([^\]]+))?\]\]', {
+  $attributes = @(
+    'src="{0}"' -f (Escape-Html $Target),
+    'alt="{0}"' -f (Escape-Html $alt)
+  ) + $attributes
+
+  return '<img {0} />' -f ($attributes -join ' ')
+}
+
+function Convert-ObsidianSyntax {
+  param(
+    [string]$Text,
+    [hashtable]$PageMap,
+    [string[]]$ImageExtensions
+  )
+
+  $text = [regex]::Replace($Text, '!\[\[([^\]|]+)(?:\|([^\]]+))?\]\]', {
       param($match)
       $target = $match.Groups[1].Value.Trim()
-      $alt = if ($match.Groups[2].Success) { $match.Groups[2].Value.Trim() } else { [System.IO.Path]::GetFileNameWithoutExtension($target) }
-      return "![{0}]({1})" -f $alt, $target
+      $option = if ($match.Groups[2].Success) { $match.Groups[2].Value.Trim() } else { "" }
+      return Convert-ObsidianImage -Target $target -Option $option
     })
 
   $text = [regex]::Replace($text, '(?<!\!)\[\[([^\]|]+)(?:\|([^\]]+))?\]\]', {
@@ -134,8 +160,8 @@ foreach ($file in $markdownFiles) {
       $label = if ($match.Groups[2].Success) { $match.Groups[2].Value.Trim() } else { $target }
 
       $extension = [System.IO.Path]::GetExtension($target).ToLowerInvariant()
-      if ($imageExtensions -contains $extension) {
-        return "[{0}]({1})" -f $label, $target
+      if ($ImageExtensions -contains $extension) {
+        return '[{0}]({1})' -f $label, $target
       }
 
       $pageTarget = $target
@@ -147,15 +173,20 @@ foreach ($file in $markdownFiles) {
       }
 
       $normalized = Normalize-LinkKey $pageTarget
-      if ($pageMap.ContainsKey($normalized)) {
-        $resolved = $pageMap[$normalized]
+      if ($PageMap.ContainsKey($normalized)) {
+        $resolved = $PageMap[$normalized]
         if ($anchor) {
-          $resolved = "{0}#{1}" -f $resolved.TrimEnd('/'), $anchor
+          $resolved = '{0}#{1}' -f $resolved.TrimEnd('/'), $anchor
         }
-        return "[{0}]({1})" -f $label, $resolved
+        return '[{0}]({1})' -f $label, $resolved
       }
 
       return $label
+    })
+
+  $text = [regex]::Replace($text, '==(.+?)==', {
+      param($match)
+      return '<mark>{0}</mark>' -f $match.Groups[1].Value
     })
 
   $text = [regex]::Replace($text, '(?ms)^> \[!(\w+)\]\s*(.*?)\r?\n((?:>.*(?:\r?\n|$))*)', {
@@ -177,7 +208,59 @@ $body  </div>
 "@
     })
 
-  if ($text -ne $original) {
-    Set-Content -LiteralPath $file.FullName -Value $text -Encoding utf8
+  return $text
+}
+
+$contentPath = (Resolve-Path -LiteralPath $ContentRoot).Path
+$outputPath = [System.IO.Path]::GetFullPath((Join-Path (Get-Location) $OutputRoot))
+
+if ($outputPath -eq $contentPath) {
+  throw "OutputRoot cannot be the same as ContentRoot."
+}
+
+if (Test-Path -LiteralPath $outputPath) {
+  Remove-Item -LiteralPath $outputPath -Recurse -Force
+}
+
+New-Item -ItemType Directory -Path $outputPath | Out-Null
+Copy-Item -LiteralPath $contentPath -Destination $outputPath -Recurse -Force
+
+$generatedContentRoot = Join-Path $outputPath (Split-Path $contentPath -Leaf)
+$sourceMarkdownFiles = Get-ChildItem $contentPath -Recurse -File -Include *.md
+$generatedMarkdownFiles = Get-ChildItem $generatedContentRoot -Recurse -File -Include *.md
+
+$pageMap = @{}
+foreach ($file in $sourceMarkdownFiles) {
+  if ($file.Name -eq "_index.md") {
+    continue
+  }
+
+  $identity = Get-PageIdentity -File $file -RootPath $contentPath
+  if ($null -eq $identity) {
+    continue
+  }
+
+  foreach ($key in @($identity.Title, $identity.BundleName, $identity.Slug)) {
+    if ([string]::IsNullOrWhiteSpace($key)) {
+      continue
+    }
+
+    $normalized = Normalize-LinkKey $key
+    if (-not $pageMap.ContainsKey($normalized)) {
+      $pageMap[$normalized] = $identity.Permalink
+    }
   }
 }
+
+$imageExtensions = @(".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".bmp")
+
+foreach ($file in $generatedMarkdownFiles) {
+  $text = Get-Content $file.FullName -Raw -Encoding utf8
+  $converted = Convert-ObsidianSyntax -Text $text -PageMap $pageMap -ImageExtensions $imageExtensions
+
+  if ($converted -ne $text) {
+    Set-Content -LiteralPath $file.FullName -Value $converted -Encoding utf8
+  }
+}
+
+Write-Output $generatedContentRoot

@@ -3,6 +3,7 @@ title = "3.1 程序装入"
 date = 2026-05-16T22:03:58+08:00
 lastmod = 2026-05-16T22:03:58+08:00
 draft = false
+weight = 31
 slug = "program-loading"
 summary = "链接、装入、重定位、内存保护与程序内存布局的核心知识整理。"
 tags = ["操作系统", "装入", "链接", "408"]

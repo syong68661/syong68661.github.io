@@ -3,6 +3,7 @@ title = "3.2 内存分区管理"
 date = 2026-05-16T21:40:00+08:00
 lastmod = 2026-05-16T21:40:00+08:00
 draft = false
+weight = 32
 slug = "memory-partition-management"
 summary = "连续分配、动态分区分配、动态重定位和内存回收的核心知识整理。"
 tags = ["操作系统", "内存管理", "408"]

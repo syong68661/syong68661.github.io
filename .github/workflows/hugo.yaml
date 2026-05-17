@@ -42,11 +42,14 @@ jobs:
           extended: true
 
       - name: Convert Obsidian syntax
+        id: obsidian
         shell: pwsh
-        run: ./scripts/convert-obsidian.ps1
+        run: |
+          $generated = ./scripts/convert-obsidian.ps1
+          "content_dir=$generated" >> $env:GITHUB_OUTPUT
 
       - name: Build
-        run: hugo --minify --cleanDestinationDir --baseURL "${{ steps.pages.outputs.base_url }}/"
+        run: hugo --minify --cleanDestinationDir --baseURL "${{ steps.pages.outputs.base_url }}/" --contentDir "${{ steps.obsidian.outputs.content_dir }}"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
