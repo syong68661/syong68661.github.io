@@ -270,6 +270,45 @@ pre {
   background: rgba(0, 95, 115, 0.08);
 }
 
+.content .callout {
+  margin: 24px 0;
+  padding: 16px 18px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.74);
+  box-shadow: var(--shadow);
+}
+
+.content .callout-title {
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.content .callout-body > *:first-child {
+  margin-top: 0;
+}
+
+.content .callout-body > *:last-child {
+  margin-bottom: 0;
+}
+
+.content .callout-note {
+  border-left: 4px solid #2a9d8f;
+}
+
+.content .callout-tip {
+  border-left: 4px solid #3a86ff;
+}
+
+.content .callout-warning {
+  border-left: 4px solid #ee9b00;
+}
+
+.content .callout-danger,
+.content .callout-error {
+  border-left: 4px solid #bb3e03;
+}
+
 .content pre code {
   padding: 0;
   background: transparent;

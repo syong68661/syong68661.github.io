@@ -2,9 +2,9 @@
 title = "Obsidian 到 Hugo 的写作注意事项"
 date = 2026-05-16T21:55:00+08:00
 lastmod = 2026-05-16T21:55:00+08:00
-draft = true
+draft = false
 slug = "obsidian-to-hugo-writing-notes"
-summary = "记录 Obsidian 写作迁移到 Hugo 时最常见的格式差异和推荐替代写法。"
+summary = "记录 Obsidian 写作迁移到 Hugo 时常见语法差异，以及当前项目已支持的兼容方式。"
 tags = ["Hugo", "Obsidian", "写作"]
 categories = ["操作系统"]
 +++
@@ -19,37 +19,52 @@ categories = ["操作系统"]
 - 表格
 - `==高亮==`
 
-## 不能直接依赖的
+## 当前项目已兼容的 Obsidian 语法
 
 - `[[双链]]`
-- `![[嵌入]]`
+- `[[页面名|别名]]`
+- `[[页面名#标题]]`
+- `[[页面名#标题|别名]]`
+- `![[image.png]]`
+- `> [!note]`
+- `> [!tip]`
+- `> [!warning]`
 
-这两类是 Obsidian 语法，Hugo 默认不会把它们当成标准链接来渲染。
+## 它是怎么工作的
 
-## 推荐替代写法
+当前项目在构建前会运行：
 
-把双链：
+- [scripts/convert-obsidian.ps1](/e:/software/my-blog/scripts/convert-obsidian.ps1)
+
+它会自动做这些转换：
+
+- `![[image.png]]` -> `![image](image.png)`
+- `[[页面名]]` -> 解析成站内链接
+- `[[页面名|别名]]` -> 解析成带别名的站内链接
+- `[[页面名#标题]]` -> 解析成带锚点的站内链接
+- `> [!note]` -> 解析成提示块
+
+## 推荐写法示例
+
+双链：
 
 ```md
-[[哈希算法]]
+[[3.2 内存分区管理]]
+[[3.2 内存分区管理|内存分区]]
+[[3.2 内存分区管理#2. 结构/组成]]
 ```
 
-改成标准 Markdown：
+图片嵌入：
 
 ```md
-[哈希算法](/some-path/)
+![[IMG_20260516_172639.jpg]]
 ```
 
-把嵌入：
+Callout：
 
 ```md
-![[image.png]]
-```
-
-改成：
-
-```md
-![image](./image.png)
+> [!note] 重点
+> 这是一个提示块
 ```
 
 ## 文章时间怎么改
@@ -63,3 +78,11 @@ lastmod = 2026-05-16T21:40:00+08:00
 
 - `date` 控制文章显示时间
 - `lastmod` 控制最近修改时间
+
+## 本地预览
+
+如果你想在启动 Hugo 前自动转换 Obsidian 语法，可以执行：
+
+```powershell
+.\scripts\dev.ps1
+```

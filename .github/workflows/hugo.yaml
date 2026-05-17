@@ -41,6 +41,10 @@ jobs:
           hugo-version: ${{ env.HUGO_VERSION }}
           extended: true
 
+      - name: Convert Obsidian syntax
+        shell: pwsh
+        run: ./scripts/convert-obsidian.ps1
+
       - name: Build
         run: hugo --minify --cleanDestinationDir --baseURL "${{ steps.pages.outputs.base_url }}/"
 
