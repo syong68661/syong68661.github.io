@@ -137,7 +137,7 @@ function Convert-ObsidianImage {
     'alt="{0}"' -f (Escape-Html $alt)
   ) + $attributes
 
-  return '<img {0} />' -f ($attributes -join ' ')
+  return "<img {0} />`r`n`r`n" -f ($attributes -join ' ')
 }
 
 function Convert-ObsidianSyntax {
@@ -219,13 +219,35 @@ if ($outputPath -eq $contentPath) {
 }
 
 if (Test-Path -LiteralPath $outputPath) {
-  Remove-Item -LiteralPath $outputPath -Recurse -Force
+  try {
+    Remove-Item -LiteralPath $outputPath -Recurse -Force -ErrorAction Stop
+  }
+  catch {
+    Write-Warning "Could not fully clean $outputPath. Existing files will be overwritten in place."
+  }
 }
 
-New-Item -ItemType Directory -Path $outputPath | Out-Null
-Copy-Item -LiteralPath $contentPath -Destination $outputPath -Recurse -Force
+if (-not (Test-Path -LiteralPath $outputPath)) {
+  New-Item -ItemType Directory -Path $outputPath | Out-Null
+}
 
 $generatedContentRoot = Join-Path $outputPath (Split-Path $contentPath -Leaf)
+if (-not (Test-Path -LiteralPath $generatedContentRoot)) {
+  New-Item -ItemType Directory -Path $generatedContentRoot | Out-Null
+}
+
+Get-ChildItem $contentPath -Recurse -File | ForEach-Object {
+  $sourceFile = $_.FullName
+  $relativePath = $sourceFile.Substring($contentPath.Length + 1)
+  $destinationFile = Join-Path $generatedContentRoot $relativePath
+  $destinationDir = Split-Path -Parent $destinationFile
+
+  if (-not (Test-Path -LiteralPath $destinationDir)) {
+    New-Item -ItemType Directory -Path $destinationDir -Force | Out-Null
+  }
+
+  Copy-Item -LiteralPath $sourceFile -Destination $destinationFile -Force
+}
 $sourceMarkdownFiles = Get-ChildItem $contentPath -Recurse -File -Include *.md
 $generatedMarkdownFiles = Get-ChildItem $generatedContentRoot -Recurse -File -Include *.md
 

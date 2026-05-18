@@ -10,6 +10,8 @@ enableRobotsTXT = true
 
 [markup]
   [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
     [markup.goldmark.extensions]
       definitionList = true
       footnote = true
@@ -43,15 +45,15 @@ enableRobotsTXT = true
   [[menu.main]]
     name = "操作系统"
     pageRef = "/操作系统"
-    weight = 20
+    weight = 40
   [[menu.main]]
     name = "数据结构"
     pageRef = "/数据结构"
-    weight = 30
+    weight = 20
   [[menu.main]]
     name = "计算机组成原理"
     pageRef = "/计算机组成原理"
-    weight = 40
+    weight = 30
   [[menu.main]]
     name = "计算机网络"
     pageRef = "/计算机网络"

@@ -1,2 +1,2 @@
 $generatedContent = & "$PSScriptRoot\convert-obsidian.ps1"
-hugo server -D -c $generatedContent
+hugo server -D -c $generatedContent --renderToMemory
