@@ -101,6 +101,12 @@ function Escape-Html {
   return $Value.Replace("&", "&amp;").Replace('"', "&quot;").Replace("<", "&lt;").Replace(">", "&gt;")
 }
 
+function Get-ImageSrc {
+  param([string]$Target)
+
+  return ($Target -replace ' ', '%20')
+}
+
 function Convert-ObsidianImage {
   param(
     [string]$Target,
@@ -108,6 +114,8 @@ function Convert-ObsidianImage {
   )
 
   $alt = [System.IO.Path]::GetFileNameWithoutExtension($Target)
+  $markdownTarget = if ($Target -match '\s') { "<$Target>" } else { $Target }
+  $imageSrc = Get-ImageSrc $Target
   $attributes = @()
 
   if (-not [string]::IsNullOrWhiteSpace($Option)) {
@@ -129,11 +137,15 @@ function Convert-ObsidianImage {
   }
 
   if ($attributes.Count -eq 0) {
-    return '![{0}]({1})' -f $alt, $Target
+    if ($Target -match '\s') {
+      return '<img src="{0}" alt="{1}" />' -f (Escape-Html $imageSrc), (Escape-Html $alt)
+    }
+
+    return '![{0}]({1})' -f $alt, $markdownTarget
   }
 
   $attributes = @(
-    'src="{0}"' -f (Escape-Html $Target),
+    'src="{0}"' -f (Escape-Html $imageSrc),
     'alt="{0}"' -f (Escape-Html $alt)
   ) + $attributes
 
