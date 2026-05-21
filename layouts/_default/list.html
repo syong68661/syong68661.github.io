@@ -1,48 +1,20 @@
 {{ define "main" }}
   {{ $pages := where site.RegularPages "Section" .Section }}
   {{ $sortBy := .Params.sort_by | default "date" }}
-  {{ $overviewContentPath := printf "content/%s/0-0概览/index.md" .Section }}
-  {{ $overviewSource := "" }}
-  {{ with readFile $overviewContentPath }}
-    {{ $overviewSource = . }}
-  {{ end }}
-  {{ $overviewTitle := "" }}
-  {{ $overviewSummary := "" }}
-  {{ $overviewSlug := "" }}
-  {{ if $overviewSource }}
-    {{ $overviewTitle = replaceRE `(?s)^.*?title\s*=\s*['"]([^'"]+)['"].*$` `${1}` $overviewSource }}
-    {{ $overviewSummary = replaceRE `(?s)^.*?summary\s*=\s*['"]([^'"]+)['"].*$` `${1}` $overviewSource }}
-    {{ $overviewSlug = replaceRE `(?s)^.*?slug\s*=\s*['"]([^'"]+)['"].*$` `${1}` $overviewSource }}
-  {{ end }}
-  {{ $sectionBase := "" }}
-  {{ range first 1 $pages }}
-    {{ if .RelPermalink }}
-      {{ $sectionBase = replaceRE `[^/]+/?$` "" .RelPermalink }}
-    {{ end }}
-  {{ end }}
   <section class="section-head">
     <p class="eyebrow">Section</p>
     <h1>{{ .Title }}</h1>
     <p>{{ with .Params.description }}{{ . }}{{ else }}{{ .Summary }}{{ end }}</p>
   </section>
 
-  {{ if and $overviewTitle $overviewSummary $overviewSlug $sectionBase }}
-    <article class="post-item">
-      <h2><a href="{{ printf "%s%s/" $sectionBase $overviewSlug }}">{{ $overviewTitle }}</a></h2>
-      <p>{{ $overviewSummary }}</p>
-    </article>
-  {{ end }}
-
   <section class="stack">
     {{ if eq $sortBy "weight" }}
-      {{ range $pages.ByWeight }}
-        {{ if ne .Weight 0 }}
-          <article class="post-item">
-            <p class="post-meta">{{ .Date.Format "2006-01-02" }}</p>
-            <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-            <p>{{ .Summary }}</p>
-          </article>
-        {{ end }}
+      {{ range sort $pages "Params.weight" "asc" }}
+        <article class="post-item">
+          <p class="post-meta">{{ .Date.Format "2006-01-02" }}</p>
+          <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+          <p>{{ .Summary }}</p>
+        </article>
       {{ else }}
         <article class="post-item">
           <h2>Content is coming</h2>
@@ -51,13 +23,11 @@
       {{ end }}
     {{ else }}
       {{ range $pages.ByDate.Reverse }}
-        {{ if ne .Weight 0 }}
-          <article class="post-item">
-            <p class="post-meta">{{ .Date.Format "2006-01-02" }}</p>
-            <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-            <p>{{ .Summary }}</p>
-          </article>
-        {{ end }}
+        <article class="post-item">
+          <p class="post-meta">{{ .Date.Format "2006-01-02" }}</p>
+          <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+          <p>{{ .Summary }}</p>
+        </article>
       {{ else }}
         <article class="post-item">
           <h2>Content is coming</h2>

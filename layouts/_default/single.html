@@ -1,17 +1,48 @@
 {{ define "main" }}
-  <article class="article">
-    <p class="post-meta">{{ .Date.Format "2006-01-02" }} · {{ .Section | upper }}</p>
-    <h1>{{ .Title }}</h1>
-    {{ with .Params.summary }}<p class="lead">{{ . }}</p>{{ end }}
-    <div class="content">
-      {{ .Content }}
-    </div>
-    {{ with .Params.tags }}
-      <div class="tag-row">
-        {{ range . }}
-          <span class="tag">{{ . }}</span>
+  {{ $section := .CurrentSection }}
+  {{ $sortBy := $section.Params.sort_by | default "date" }}
+  {{ $pages := where site.RegularPages "Section" .Section }}
+  <div class="article-layout">
+    <aside class="side-card section-nav-card">
+      <p class="side-eyebrow">{{ $section.Title }}</p>
+      <h2>同分类文章</h2>
+      <nav class="section-nav">
+        {{ if eq $sortBy "weight" }}
+          {{ range sort $pages "Params.weight" "asc" }}
+            <a class="section-nav-link{{ if eq .RelPermalink $.RelPermalink }} is-current{{ end }}" href="{{ .RelPermalink }}">{{ .Title }}</a>
+          {{ end }}
+        {{ else }}
+          {{ range $pages.ByDate.Reverse }}
+            <a class="section-nav-link{{ if eq .RelPermalink $.RelPermalink }} is-current{{ end }}" href="{{ .RelPermalink }}">{{ .Title }}</a>
+          {{ end }}
         {{ end }}
+      </nav>
+    </aside>
+
+    <article class="article article-main">
+      <p class="post-meta">{{ .Date.Format "2006-01-02" }} · {{ .Section | upper }}</p>
+      <h1>{{ .Title }}</h1>
+      {{ with .Params.summary }}<p class="lead">{{ . }}</p>{{ end }}
+      <div class="content">
+        {{ .Content }}
       </div>
+      {{ with .Params.tags }}
+        <div class="tag-row">
+          {{ range . }}
+            <span class="tag">{{ . }}</span>
+          {{ end }}
+        </div>
+      {{ end }}
+    </article>
+
+    {{ with .TableOfContents }}
+      <aside class="side-card article-toc-card">
+        <p class="side-eyebrow">Outline</p>
+        <h2>快速定位</h2>
+        <nav class="toc-nav">
+          {{ . }}
+        </nav>
+      </aside>
     {{ end }}
-  </article>
+  </div>
 {{ end }}

@@ -10,7 +10,7 @@ publishDate = 2026-05-17T10:00:00+08:00
 
 draft = false
 
-weight = 0
+weight = 1
 
 slug = "operating-system-overview"
 
