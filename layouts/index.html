@@ -52,7 +52,9 @@
       <p>有不合理的地方，还请见谅。</p>
     </div>
     <div class="stack">
-      {{ range first 5 (where site.RegularPages "Draft" false) }}
+      {{ $recentPages := where site.RegularPages "Draft" false }}
+      {{ $recentPages = where $recentPages "File.BaseFileName" "ne" "0-0概览" }}
+      {{ range first 5 (sort $recentPages "Date" "desc") }}
         <article class="post-item">
           <p class="post-meta">{{ .Date.Format "2006-01-02" }} · {{ .CurrentSection.Title }}</p>
           <h3><a href="{{ .RelPermalink }}">{{ .Title }}</a></h3>
