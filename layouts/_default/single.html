@@ -1,7 +1,8 @@
 {{ define "main" }}
   {{ $section := .CurrentSection }}
-  {{ $sortBy := $section.Params.sort_by | default "date" }}
   {{ $pages := where site.RegularPages "Section" .Section }}
+  {{ $weightedPages := where $pages "Params.weight" "ne" nil }}
+  {{ $sortBy := $section.Params.sort_by | default (cond (eq (len $weightedPages) (len $pages)) "weight" "date") }}
   <div class="article-layout">
     <aside class="side-card section-nav-card">
       <p class="side-eyebrow">{{ $section.Title }}</p>

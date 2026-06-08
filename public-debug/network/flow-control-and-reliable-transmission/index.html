@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>3.2 流量控制与可靠传输 | SYong 的技术博客</title>
+  <meta name="description" content="记录 408、C&#43;&#43;、Linux、系统与工程实践的长期技术博客。">
+  <link rel="stylesheet" href="/css/main.css?v=1780909167">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="/">SYong 的技术博客</a>
+      <nav class="site-nav">
+        
+          <a href="/">首页</a>
+        
+          <a href="/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a>
+        
+          <a href="/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/">计算机组成原理</a>
+        
+          <a href="/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+        
+          <a href="/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a>
+        
+      </nav>
+    </header>
+
+    <main class="site-main">
+      
+  
+  
+  
+  
+  <div class="article-layout">
+    <aside class="side-card section-nav-card">
+      <p class="side-eyebrow">计算机网络</p>
+      <h2>同分类文章</h2>
+      <nav class="section-nav">
+        
+          
+            <a class="section-nav-link" href="/network/physical-interfaces-and-physical-layer-devices/">2.1 物理接口与物理层设备</a>
+          
+            <a class="section-nav-link" href="/network/functions-of-the-data-link-layer/">3.1 数据链路层的功能</a>
+          
+            <a class="section-nav-link is-current" href="/network/flow-control-and-reliable-transmission/">3.2 流量控制与可靠传输</a>
+          
+            <a class="section-nav-link" href="/network/media-access-control/">3.3 介质访问控制</a>
+          
+            <a class="section-nav-link" href="/network/local-area-network/">3.4 局域网</a>
+          
+            <a class="section-nav-link" href="/network/switched-ethernet-and-wide-area-network/">3.5 交换式以太网及广域网</a>
+          
+            <a class="section-nav-link" href="/network/summary-of-data-link-layer/">3.6 数据链路层总结</a>
+          
+            <a class="section-nav-link" href="/network/functions-of-the-network-layer/">4.1 网络层的功能</a>
+          
+        
+      </nav>
+    </aside>
+
+    <article class="article article-main">
+      <p class="post-meta">2026-05-30 · 计算机网络</p>
+      <h1>3.2 流量控制与可靠传输</h1>
+      <p class="lead">解决数据链路层帧差错的方案，实现可靠传输</p>
+      <div class="content">
+        <p><strong>重点</strong>
+<strong>易错</strong>
+<strong>易混</strong></p>
+<h2 id="1-本质">1. 本质</h2>
+<p>上一小节只能解决==比特差错==的问题，而无法解决==帧差错==的问题。所以在==帧编号、确认和重传机制==的基础上，产生<strong>流量控制</strong>和<strong>可靠传输</strong>。</p>
+<h2 id="2-结构组成">2. 结构/组成</h2>
+<p>下面说的方案大致相同，不过一方面时从流量控制来看问题；一方面是从可靠传输来看问题。使用<strong>信道利用率</strong>和<strong>有效传输速率</strong>来进行比较。</p>
+<h3 id="信道利用率和有效传输速率">信道利用率和有效传输速率</h3>
+<p>本质为计算<code>传送第一个数据的时间T1+RTT往返时延+确认帧的发送时间T2=一个发送周期的时间</code>。
+<img src="Pasted%20image%2020260530213456.png" alt="">
+当一个发送周期计算出来后，要计算有效传输速率时，只需要知道在该周期内，传送的数据量就可以得出结果。
+<img src="Pasted%20image%2020260530213716.png" alt=""></p>
+<h3 id="流量控制">流量控制</h3>
+<p>避免发送方的发送速率大于接收方的发送速率，导致接收方无法处理接收来的数据，从而造成数据大量丢失。所以通过以下方法来<em>控制发送方的发送速率</em>。</p>
+<ol>
+<li>停止等待协议
+相当于发送窗口为1，接收窗口为1。
+由信道利用率的计算公式可知，发送完一个数据后，必须要等待确认帧，从而其效率较低。
+<img src="Pasted%20image%2020260530213921.png" alt=""></li>
+<li>滑动窗口流量控制：避免了等待时间，从而提高了效率。
+允许发送一个数据后，若其它数据在发送窗口内，则不用等待确认帧，可以继续发送该数据。即发送窗口限制了发送方可以发送的帧最大数量。
+<img src="Pasted%20image%2020260530214240.png" alt="">
+同样有接收窗口，只接收窗口内的帧，对于窗口外的帧，则直接丢弃。
+<img src="Pasted%20image%2020260530214515.png" alt=""></li>
+</ol>
+<h3 id="可靠传输机制">可靠传输机制</h3>
+<p>接收方收到数据后，需要向发送方发送对应的确认帧；发送方拥有超时重传，当在一个时间段内，没有收到对应帧的确认帧，则重新发送该帧。以上过程为==自动重传请求协议（ARQ）==。</p>
+<ol>
+<li>停止等待协议</li>
+<li>后退N帧协议（GBN）
+<img src="Pasted%20image%2020260530215229.png" alt="">
+设计了==累计确认==机制，不要求每一个帧都有确认帧。但是要求==接收方按序接收数据帧==。所以接收方的窗口大小为1。
+<img src="Pasted%20image%2020260530215257.png" alt="">
+若使用n比特对数据帧编号，则帧序列从<code>0到2^n-1</code>，对于发送窗口要求<code>1到2^n-1</code>，从而避免把旧帧当新帧处理（新瓶装旧酒）。
+<img src="Pasted%20image%2020260530215637.png" alt=""></li>
+<li>选择重传协议（SR)
+放弃了累计确认机制，要对每个帧进行==单独确认==。所以，接收方==不要求按序接收==，同时接收方的窗口不要求大小为1。
+当接收方检测出帧出错时，会向发送发发送否定确认帧（NAK）。
+<img src="Pasted%20image%2020260530215955.png" alt="">
+若使用n比特来进行帧编号，则帧序列从<code>0到2^n-1</code>，对于发送窗口和接收窗口要求<code>发送窗口+接收窗口&lt;=2^n</code>,通常接收窗口与发送窗口大小一样，即都为<code>2^(n-1)</code>，从而避免新瓶装旧酒，也避免了发送窗口大于接收窗口，导致接收方无法及时处理多余发送过来的数据。
+<img src="Pasted%20image%2020260531154423.png" alt=""></li>
+</ol>
+<h3 id="连续arq协议的信道利用率">连续ARQ协议的信道利用率</h3>
+<p>显然停止等待协议无法做到连续发送数据，所以考虑的是GBN和SR两种协议。关键在于在发送一个数据的周期内，发送方发送n个数据是否大于这个周期，若大于该周期，则信道利用率为100%。
+<img src="Pasted%20image%2020260531154909.png" alt="">
+若在一个周期内，发送方发送了n个数据，则需要等待第一个数据的确认帧到达后，才可以继续发送。
+<img src="Pasted%20image%2020260531155210.png" alt=""></p>
+<h2 id="3-核心操作">3. 核心操作</h2>
+<ul>
+<li>后续补充</li>
+</ul>
+<hr>
+<h2 id="4-常考点">4. 常考点</h2>
+<ul>
+<li>后续补充</li>
+</ul>
+<hr>
+<h2 id="5-易错点">5. 易错点</h2>
+<ul>
+<li>后续补充</li>
+</ul>
+<hr>
+<h2 id="6-关联知识">6. 关联知识</h2>
+<ul>
+<li>后续补充</li>
+</ul>
+<hr>
+<h2 id="7-真题记录">7. 真题记录</h2>
+<ul>
+<li>后续补充</li>
+</ul>
+<hr>
+
+      </div>
+      
+    </article>
+
+    
+      <aside class="side-card article-toc-card">
+        <p class="side-eyebrow">Outline</p>
+        <h2>快速定位</h2>
+        <nav class="toc-nav">
+          <nav id="TableOfContents">
+  <ul>
+    <li><a href="#1-本质">1. 本质</a></li>
+    <li><a href="#2-结构组成">2. 结构/组成</a>
+      <ul>
+        <li><a href="#信道利用率和有效传输速率">信道利用率和有效传输速率</a></li>
+        <li><a href="#流量控制">流量控制</a></li>
+        <li><a href="#可靠传输机制">可靠传输机制</a></li>
+        <li><a href="#连续arq协议的信道利用率">连续ARQ协议的信道利用率</a></li>
+      </ul>
+    </li>
+    <li><a href="#3-核心操作">3. 核心操作</a></li>
+    <li><a href="#4-常考点">4. 常考点</a></li>
+    <li><a href="#5-易错点">5. 易错点</a></li>
+    <li><a href="#6-关联知识">6. 关联知识</a></li>
+    <li><a href="#7-真题记录">7. 真题记录</a></li>
+  </ul>
+</nav>
+        </nav>
+      </aside>
+    
+  </div>
+
+    </main>
+
+    <footer class="site-footer">
+      <p>SYong · 408 / C&#43;&#43; / Linux / 系统方向</p>
+      <p>Built with Hugo and deployed on GitHub Pages.</p>
+    </footer>
+  </div>
+</body>
+</html>

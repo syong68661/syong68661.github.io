@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>计算机网路 on SYong 的技术博客</title>
+    <link>https://yourname.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E8%B7%AF/</link>
+    <description>Recent content in 计算机网路 on SYong 的技术博客</description>
+    <generator>Hugo</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Fri, 29 May 2026 12:00:00 +0800</lastBuildDate>
+    <atom:link href="https://yourname.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E8%B7%AF/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>3.1 数据链路层的功能</title>
+      <link>https://yourname.github.io/network/functions-of-the-data-link-layer/</link>
+      <pubDate>Fri, 29 May 2026 12:00:00 +0800</pubDate>
+      <guid>https://yourname.github.io/network/functions-of-the-data-link-layer/</guid>
+      <description>关于数据链路层的基础功能。</description>
+    </item>
+  </channel>
+</rss>

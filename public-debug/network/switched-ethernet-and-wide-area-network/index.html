@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>3.5 交换式以太网及广域网 | SYong 的技术博客</title>
+  <meta name="description" content="记录 408、C&#43;&#43;、Linux、系统与工程实践的长期技术博客。">
+  <link rel="stylesheet" href="/css/main.css?v=1780909167">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="/">SYong 的技术博客</a>
+      <nav class="site-nav">
+        
+          <a href="/">首页</a>
+        
+          <a href="/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a>
+        
+          <a href="/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/">计算机组成原理</a>
+        
+          <a href="/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+        
+          <a href="/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a>
+        
+      </nav>
+    </header>
+
+    <main class="site-main">
+      
+  
+  
+  
+  
+  <div class="article-layout">
+    <aside class="side-card section-nav-card">
+      <p class="side-eyebrow">计算机网络</p>
+      <h2>同分类文章</h2>
+      <nav class="section-nav">
+        
+          
+            <a class="section-nav-link" href="/network/physical-interfaces-and-physical-layer-devices/">2.1 物理接口与物理层设备</a>
+          
+            <a class="section-nav-link" href="/network/functions-of-the-data-link-layer/">3.1 数据链路层的功能</a>
+          
+            <a class="section-nav-link" href="/network/flow-control-and-reliable-transmission/">3.2 流量控制与可靠传输</a>
+          
+            <a class="section-nav-link" href="/network/media-access-control/">3.3 介质访问控制</a>
+          
+            <a class="section-nav-link" href="/network/local-area-network/">3.4 局域网</a>
+          
+            <a class="section-nav-link is-current" href="/network/switched-ethernet-and-wide-area-network/">3.5 交换式以太网及广域网</a>
+          
+            <a class="section-nav-link" href="/network/summary-of-data-link-layer/">3.6 数据链路层总结</a>
+          
+            <a class="section-nav-link" href="/network/functions-of-the-network-layer/">4.1 网络层的功能</a>
+          
+        
+      </nav>
+    </aside>
+
+    <article class="article article-main">
+      <p class="post-meta">2026-06-05 · 计算机网络</p>
+      <h1>3.5 交换式以太网及广域网</h1>
+      <p class="lead">掌握交换机的工作方式，同时使用交换机来构建虚拟局域网，以及广域网下的PPP协议。</p>
+      <div class="content">
+        <p><strong>重点</strong>
+<strong>易错</strong>
+<strong>易混</strong></p>
+<h2 id="1-本质">1. 本质</h2>
+<p>针对高速以太网，如10Base-T等，当距离==超过200m==后，==CSMA/CD协议==无法正常工作。若使用==集线器==等<strong>从物理层来扩展</strong>，会==降低系统的吞吐量==。
+原因在于集线器只是拥有多个端口的转发器，不能<strong>对帧进行缓存</strong>。所以整个系统始终==只有一个冲突域，一个广播域==。</p>
+<p>而交换机本质为多端口的网桥，可以根据<strong>收到的帧其目的地址进行转发和过滤</strong>。所以==交换机是二层设备==。
+所以当交换机连接多个主机时，不会降低系统的吞吐量。用户在通信时是独占的，即==每个主机独占一个冲突域，所有主机共享一个广播域==。
+当交换机有接口连接到共享媒体的集线器时，<strong>只能使用CSMA/CD协议，工作在半双工下</strong>。即集线器+交换机端口仍然构成一个冲突域。
+<img src="Pasted%20image%2020260607170346.png" alt="">
+<img src="Pasted%20image%2020260607170432.png" alt=""></p>
+<h2 id="2-结构组成">2. 结构/组成</h2>
+<h3 id="交换机">交换机</h3>
+<p>分为两类：</p>
+<ol>
+<li>直接交换式：收到6B的目的地址立即转发。从而无法提供错误检测的功能；不能将具有不同速率的输入和输出端口连接在一起。</li>
+<li>存储转发式：具有检查错误的功能。</li>
+</ol>
+<p>根据存储转发方式，核心功能为<strong>自学习功能</strong>，从而实现隔离冲突域。
+为了防止在学习过程中，数据帧无限兜圈子，制定了==生成树协议STP==（本质为有向无环图）。
+<img src="Pasted%20image%2020260607171353.png" alt=""></p>
+<h3 id="虚拟局域网vlan">虚拟局域网——VLAN</h3>
+<p>交换机不能隔离广播域，因此使用==<strong>802.1Q</strong>==标准从逻辑上构建一个广播域。
+也可以使用路由器隔离广播域，但是修改起来比较麻烦。
+该方法有利于控制流量、减少设备投资、简化网络管理，提高网络安全性。</p>
+<p>划分方法：</p>
+<ol>
+<li>基于端口：便捷性不高，设备的端口移动后，原来的设置就失效了</li>
+<li>基于MAC地址：允许工作站移动。</li>
+<li>基于完了过层划分</li>
+</ol>
+<p>其帧格式在原来802.3帧基础上，插入了==4字节的VLAN字段==，成为802.1Q帧。
+<img src="Pasted%20image%2020260607195103.png" alt=""></p>
+<h3 id="广域网">广域网</h3>
+<p><strong>广域网不等于互联网</strong>，其依旧是单一网络。工作设备为==节点交换机==，属于==三层设备==，所以其核心功能为存储并转发分组。
+<img src="Pasted%20image%2020260607195401.png" alt="">
+以下为对比图
+<img src="Pasted%20image%2020260607195439.png" alt=""></p>
+<h4 id="ppp协议">PPP协议</h4>
+<p>之前由于线路质量不好，所以使用HDLC协议来保证可靠传输。
+现在线路质量变好，使用PPP协议在点对点信道中工作。
+是<strong>面向字节、只支持点对点全双工链路</strong>。</p>
+<ol>
+<li>帧格式如下：
+<img src="Pasted%20image%2020260607200006.png" alt=""></li>
+<li>透明传输
+在同步链路中，使用==零比特填充法==。
+在异步链路中，使用==字节填充法==。</li>
+<li>由帧格式可知道，该协议可以进行检测，但是不提供纠错的功能，即该协议是==不可靠的传输协议==。</li>
+<li>工作流程：
+包含链路控制协议（LCP）和网络控制协议（NCP）。
+<img src="Pasted%20image%2020260607200613.png" alt="">
+由图可知，该协议是==面向连接的==。由于NCP的存在，以及帧格式中有协议的字段，所以允许两端可以==运行不同的网络层协议==。</li>
+</ol>
+<h2 id="3-核心操作">3. 核心操作</h2>
+<ul>
+<li>后续补充</li>
+</ul>
+<hr>
+<h2 id="4-常考点">4. 常考点</h2>
+<ul>
+<li>后续补充</li>
+</ul>
+<hr>
+<h2 id="5-易错点">5. 易错点</h2>
+<ul>
+<li>后续补充</li>
+</ul>
+<hr>
+<h2 id="6-关联知识">6. 关联知识</h2>
+<ul>
+<li>后续补充</li>
+</ul>
+<hr>
+<h2 id="7-真题记录">7. 真题记录</h2>
+<ul>
+<li>后续补充</li>
+</ul>
+<hr>
+
+      </div>
+      
+    </article>
+
+    
+      <aside class="side-card article-toc-card">
+        <p class="side-eyebrow">Outline</p>
+        <h2>快速定位</h2>
+        <nav class="toc-nav">
+          <nav id="TableOfContents">
+  <ul>
+    <li><a href="#1-本质">1. 本质</a></li>
+    <li><a href="#2-结构组成">2. 结构/组成</a>
+      <ul>
+        <li><a href="#交换机">交换机</a></li>
+        <li><a href="#虚拟局域网vlan">虚拟局域网——VLAN</a></li>
+        <li><a href="#广域网">广域网</a></li>
+      </ul>
+    </li>
+    <li><a href="#3-核心操作">3. 核心操作</a></li>
+    <li><a href="#4-常考点">4. 常考点</a></li>
+    <li><a href="#5-易错点">5. 易错点</a></li>
+    <li><a href="#6-关联知识">6. 关联知识</a></li>
+    <li><a href="#7-真题记录">7. 真题记录</a></li>
+  </ul>
+</nav>
+        </nav>
+      </aside>
+    
+  </div>
+
+    </main>
+
+    <footer class="site-footer">
+      <p>SYong · 408 / C&#43;&#43; / Linux / 系统方向</p>
+      <p>Built with Hugo and deployed on GitHub Pages.</p>
+    </footer>
+  </div>
+</body>
+</html>

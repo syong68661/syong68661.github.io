@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>3.3 内存分页分段管理 | SYong 的技术博客</title>
+  <meta name="description" content="记录 408、C&#43;&#43;、Linux、系统与工程实践的长期技术博客。">
+  <link rel="stylesheet" href="/css/main.css?v=1780909167">
+</head>
+<body>
+  <div class="site-shell">
+    <header class="site-header">
+      <a class="brand" href="/">SYong 的技术博客</a>
+      <nav class="site-nav">
+        
+          <a href="/">首页</a>
+        
+          <a href="/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a>
+        
+          <a href="/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86/">计算机组成原理</a>
+        
+          <a href="/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+        
+          <a href="/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a>
+        
+      </nav>
+    </header>
+
+    <main class="site-main">
+      
+  
+  
+  
+  
+  <div class="article-layout">
+    <aside class="side-card section-nav-card">
+      <p class="side-eyebrow">操作系统</p>
+      <h2>同分类文章</h2>
+      <nav class="section-nav">
+        
+          
+            <a class="section-nav-link" href="/os/operating-system-overview/">操作系统概览</a>
+          
+            <a class="section-nav-link" href="/os/program-loading/">3.1 程序装入</a>
+          
+            <a class="section-nav-link" href="/os/memory-partition-management/">3.2 内存分区管理</a>
+          
+            <a class="section-nav-link is-current" href="/os/pagination-and-segmentation-management/">3.3 内存分页分段管理</a>
+          
+            <a class="section-nav-link" href="/os/virtual-paging-management/">3.4 虚拟分页管理</a>
+          
+            <a class="section-nav-link" href="/os/page-replacement-algorithmst/">3.5 页面置换算法</a>
+          
+            <a class="section-nav-link" href="/os/io-management/">4.1 I/O管理</a>
+          
+        
+      </nav>
+    </aside>
+
+    <article class="article article-main">
+      <p class="post-meta">2026-05-17 · 操作系统</p>
+      <h1>3.3 内存分页分段管理</h1>
+      <p class="lead">在离散情况下，使用分页、分段、段页式管理。</p>
+      <div class="content">
+        <p><strong>重点</strong>
+<strong>易错</strong>
+<strong>易混</strong></p>
+<h2 id="1-本质">1. 本质</h2>
+<p>为了解决分区管理的产生的外部碎片问题，从系统角度和用户角度，提出了分页管理和分段管理，形式来看是在内存中分布是离散的。</p>
+<h2 id="2-结构组成">2. 结构/组成</h2>
+<h3 id="分页管理">分页管理</h3>
+<p>结合<strong>页表</strong>与<strong>动态重定位</strong>的思想，其主存与磁盘的基本信息交换单位是<strong>页</strong>，是==<strong>物理单位</strong>==，是系统行为，用户不可见。</p>
+<ol>
+<li>逻辑地址划分为页号与页内地址
+<ul>
+<li>高位是页号，低位是页内地址</li>
+<li>注意页通常包含高速缓冲器的块。</li>
+<li>分页是由硬件完成的。</li>
+</ul>
+</li>
+<li>使用页表，从而实现页号到页框号的映射，接着用页框号与页内地址拼接，得到真正的物理地址。
+<ul>
+<li>页表由操作系统管理，故页表放置于进程的PCB中，即其处于内核空间中。</li>
+<li>页表类似一个数组，一般不存储页号，页号作为数组下标，记录的是对应的页框号。</li>
+<li>需要使用一个页表寄存器。</li>
+<li>所以发生进程调度时，也涉及到页表的装入和撤出，即上下文切换。
+<img src="IMG_20260517_213018.jpg" alt="页表地址转换示意图"></li>
+</ul>
+</li>
+<li>当访问一个页时，需要<strong>访存两次</strong>，可以使用快表，类似计组中的全相联映射。
+<ul>
+<li>TLB是一个具有并行查询能力的高速缓冲寄存器。</li>
+<li>快表只存储了页表的一小部分。
+<img src="IMG_20260517_213721.jpg" alt="TLB 与页表访问示意图"></li>
+</ul>
+</li>
+<li>当页表较大时，不足以用一个页来存储时，从而将页表也离散存储，产生了二级页表和多级页表。
+- 页表看作为数组，所以要求索引是连续的，从而有了二级页表产生。
+<ul>
+<li>索引表作为一级页表，一般可以用一个页可以存储下来。</li>
+<li>二级页表的大小一般为<strong>一个页最多能够存储页表项数目</strong>。
+<img src="IMG_20260517_214412.jpg" alt="二级页表与多级页表示意图"></li>
+</ul>
+</li>
+</ol>
+<h3 id="分段管理">分段管理</h3>
+<p>分页管理中的地址为<strong>一维地址</strong>，而在分段管理中是<strong>二维地址</strong>（段号，段内地址）。</p>
+<ol>
+<li>便于存储保护。
+可以对各个段设置不同的权限，从而便于实现存储保护。</li>
+<li>便于存储共享。
+<ul>
+<li>虽然分页管理可以共享，但是对于同一处共享的数据，由于是基于页进行管理的，故每个进程对该处都会产生N个页表项。而分段管理中，对该处数据，仅仅需要一个段表项即可。</li>
+<li>除了每个进程有关于共享段的段表项，系统中也会有一个==共享段表==，其中会设置一个count字段用来记录共享该段的进程数目。</li>
+<li>一般对这种只允许读，不允许写，可以被多个共享的代码称为==可重入代码==。</li>
+</ul>
+</li>
+<li>由以上可得，分段管理是从用户角度考虑出发，==<strong>段是信息的逻辑单位</strong>==。</li>
+<li>逻辑地址划分为段号与段内偏移。
+<ul>
+<li>注意在找到其物理地址时，会进行<strong>两次越界判断</strong>。</li>
+<li>在分页管理中，页与页框大小是固定的，所以在找到页框后，不会发生越界。</li>
+<li>段的长度不固定。
+![[IMG_20260517_220246.jpg|697]]</li>
+</ul>
+</li>
+</ol>
+<h3 id="段页式管理">段页式管理</h3>
+<p>结合分页管理的提高内存利用率，以及分段管理的利于段的共享和保护。</p>
+<ol>
+<li>对逻辑地址划分，高位是段号，低位是段内地址（页号，页内地址）；从而使用段表和页表进行管理。</li>
+<li>每个段表项包括了页表长度和页表始址，指向页表后，页表项记录了对应的页框号（块号）。</li>
+<li>整个过程访存了三次。可以设置高速缓冲寄存器，需要==同时利用==段号和页号进行检索。</li>
+<li>在地址映射时，仅仅需要一个段表寄存器即可。
+<img src="IMG_20260518_144122.jpg" alt="IMG_20260518_144122"></li>
+</ol>
+<h3 id="物理页面表">物理页面表</h3>
+<p>用来记录各个物理页面表的使用情况，可以使用位示图实现。</p>
+<h3 id="内存的分配与回收">内存的分配与回收</h3>
+<p>涉及到PCB的修改以及位示图的修改。</p>
+<h3 id="覆盖技术与交换技术">覆盖技术与交换技术</h3>
+<p>覆盖技术发生在一个进程的内部，交换技术发生在多个进程之间。产生的原因是内存不够大，不足以一次容纳所有数据都在内存中。</p>
+<h2 id="3-核心操作">3. 核心操作</h2>
+<ul>
+<li>后续补充</li>
+</ul>
+<hr>
+<h2 id="4-常考点">4. 常考点</h2>
+<ul>
+<li>后续补充</li>
+</ul>
+<hr>
+<h2 id="5-易错点">5. 易错点</h2>
+<ul>
+<li>后续补充</li>
+</ul>
+<hr>
+<h2 id="6-关联知识">6. 关联知识</h2>
+<ul>
+<li>后续补充</li>
+</ul>
+<hr>
+<h2 id="7-真题记录">7. 真题记录</h2>
+<ul>
+<li>后续补充</li>
+</ul>
+
+      </div>
+      
+    </article>
+
+    
+      <aside class="side-card article-toc-card">
+        <p class="side-eyebrow">Outline</p>
+        <h2>快速定位</h2>
+        <nav class="toc-nav">
+          <nav id="TableOfContents">
+  <ul>
+    <li><a href="#1-本质">1. 本质</a></li>
+    <li><a href="#2-结构组成">2. 结构/组成</a>
+      <ul>
+        <li><a href="#分页管理">分页管理</a></li>
+        <li><a href="#分段管理">分段管理</a></li>
+        <li><a href="#段页式管理">段页式管理</a></li>
+        <li><a href="#物理页面表">物理页面表</a></li>
+        <li><a href="#内存的分配与回收">内存的分配与回收</a></li>
+        <li><a href="#覆盖技术与交换技术">覆盖技术与交换技术</a></li>
+      </ul>
+    </li>
+    <li><a href="#3-核心操作">3. 核心操作</a></li>
+    <li><a href="#4-常考点">4. 常考点</a></li>
+    <li><a href="#5-易错点">5. 易错点</a></li>
+    <li><a href="#6-关联知识">6. 关联知识</a></li>
+    <li><a href="#7-真题记录">7. 真题记录</a></li>
+  </ul>
+</nav>
+        </nav>
+      </aside>
+    
+  </div>
+
+    </main>
+
+    <footer class="site-footer">
+      <p>SYong · 408 / C&#43;&#43; / Linux / 系统方向</p>
+      <p>Built with Hugo and deployed on GitHub Pages.</p>
+    </footer>
+  </div>
+</body>
+</html>

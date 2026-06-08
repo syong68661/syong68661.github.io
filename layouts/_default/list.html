@@ -1,6 +1,7 @@
 {{ define "main" }}
   {{ $pages := where site.RegularPages "Section" .Section }}
-  {{ $sortBy := .Params.sort_by | default "date" }}
+  {{ $weightedPages := where $pages "Params.weight" "ne" nil }}
+  {{ $sortBy := .Params.sort_by | default (cond (eq (len $weightedPages) (len $pages)) "weight" "date") }}
   <section class="section-head">
     <p class="eyebrow">Section</p>
     <h1>{{ .Title }}</h1>
