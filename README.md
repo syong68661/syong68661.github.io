@@ -28,13 +28,11 @@ Open `http://localhost:1313`.
 
 ## Create a new article
 
-```powershell
-hugo new 408/your-topic.md
-hugo new cpp/your-topic.md
-hugo new linux/your-topic.md
-```
+See [博客常用操作](#博客常用操作). Use the current leaf bundle format:
 
-Remember to change `draft = true` to `draft = false` when ready.
+```powershell
+hugo new "数据结构/1-2 线性表/index.md"
+```
 
 ## Deploy
 
@@ -55,3 +53,58 @@ Update these fields in `hugo.toml`:
 - `params.github`
 - `params.location`
 - `params.school`
+
+## 博客常用操作
+
+### 创建文章
+
+本博客文章建议使用 leaf bundle 结构：每篇文章一个目录，正文文件固定为 `index.md`，图片放在同一目录下。
+
+```powershell
+hugo new "数据结构/1-2 线性表/index.md"
+hugo new "计算机网络/4-2 路由算法/index.md"
+hugo new "操作系统/3-6 磁盘管理/index.md"
+hugo new "计算机组成原理/2-1 数据表示/index.md"
+```
+
+常用分类目录：
+
+- `content/数据结构`
+- `content/计算机网络`
+- `content/操作系统`
+- `content/计算机组成原理`
+
+文章写好后，检查 front matter：
+
+```toml
+draft = false
+slug = "your-article-slug"
+summary = "文章摘要"
+tags = ["408"]
+categories = ["数据结构"]
+```
+
+其中 `draft = true` 表示草稿，正式发布前改为 `draft = false`。
+
+### 清理缓存
+
+运行项目自带的清理脚本：
+
+```powershell
+.\scripts\clean.ps1
+```
+
+该脚本会删除以下 Hugo 生成内容和缓存：
+
+- `.hugo-content`
+- `public`
+- `public-test`
+- `resources`
+- `.hugo_build.lock`
+
+如果页面预览异常、Obsidian 链接或图片转换结果不符合预期，可以先清理缓存，再重新启动：
+
+```powershell
+.\scripts\clean.ps1
+.\scripts\dev.ps1
+```
