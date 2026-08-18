@@ -8,7 +8,7 @@ lastmod = 2026-08-11T12:00:00+08:00
 
 draft = false
 
-weight = 14
+weight = 24
 
 slug = "Shift operations and multiplication/division operations"
 
