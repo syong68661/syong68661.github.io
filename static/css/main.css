@@ -187,6 +187,8 @@ pre {
 .section-nav-card {
   grid-column: 2;
   grid-row: 1;
+  position: static;
+  max-height: none;
 }
 
 .article-main {
