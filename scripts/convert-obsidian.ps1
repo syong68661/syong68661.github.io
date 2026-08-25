@@ -113,7 +113,8 @@ function Convert-ObsidianImage {
     [string]$Option
   )
 
-  $alt = [System.IO.Path]::GetFileNameWithoutExtension($Target)
+  $defaultAlt = [System.IO.Path]::GetFileNameWithoutExtension($Target)
+  $alt = ""
   $markdownTarget = if ($Target -match '\s') { "<$Target>" } else { $Target }
   $imageSrc = Get-ImageSrc $Target
   $attributes = @()
@@ -137,16 +138,12 @@ function Convert-ObsidianImage {
   }
 
   if ($attributes.Count -eq 0) {
-    if ($Target -match '\s') {
-      return '<img src="{0}" alt="{1}" />' -f (Escape-Html $imageSrc), (Escape-Html $alt)
-    }
-
     return '![{0}]({1})' -f $alt, $markdownTarget
   }
 
   $attributes = @(
     'src="{0}"' -f (Escape-Html $imageSrc),
-    'alt="{0}"' -f (Escape-Html $alt)
+    'alt="{0}"' -f (Escape-Html $(if ($alt) { $alt } else { $defaultAlt }))
   ) + $attributes
 
   return "<img {0} />`r`n`r`n" -f ($attributes -join ' ')

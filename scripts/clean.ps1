@@ -1,7 +1,10 @@
 $pathsToRemove = @(
   ".hugo-content",
   "public",
+  "public-debug",
+  "public-release",
   "public-test",
+  "public-test-future",
   "resources",
   ".hugo_build.lock"
 )

@@ -1,4 +1,8 @@
 /public/
+/public-debug/
+/public-release/
+/public-test-future/
+/public-test/
 /resources/
 /.hugo_build.lock
 /.hugo-content/
