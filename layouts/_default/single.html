@@ -3,7 +3,11 @@
   {{ $pages := where site.RegularPages "Section" .Section }}
   {{ $weightedPages := where $pages "Params.weight" "ne" nil }}
   {{ $sortBy := $section.Params.sort_by | default (cond (eq (len $weightedPages) (len $pages)) "weight" "date") }}
-  <div class="article-layout">
+  <div class="article-controls">
+    <button class="reader-toggle" type="button" data-sidebar-toggle aria-pressed="false">专注阅读</button>
+  </div>
+
+  <div class="article-layout" data-article-layout>
     <aside class="side-card section-nav-card">
       <p class="side-eyebrow">{{ $section.Title }}</p>
       <h2>同分类文章</h2>
@@ -46,4 +50,21 @@
       </aside>
     {{ end }}
   </div>
+
+  <script>
+    (function () {
+      var layout = document.querySelector("[data-article-layout]");
+      var toggle = document.querySelector("[data-sidebar-toggle]");
+
+      if (!layout || !toggle) {
+        return;
+      }
+
+      toggle.addEventListener("click", function () {
+        var hidden = layout.classList.toggle("sidebars-hidden");
+        toggle.setAttribute("aria-pressed", hidden ? "true" : "false");
+        toggle.textContent = hidden ? "显示侧栏" : "专注阅读";
+      });
+    }());
+  </script>
 {{ end }}
