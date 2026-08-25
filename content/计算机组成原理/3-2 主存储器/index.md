@@ -1,12 +1,13 @@
 +++
-title = '3 2 主存储器'
-date = 2026-05-17T10:00:00+08:00
-lastmod = 2026-05-17T10:00:00+08:00
-draft = true
+title = '3-2 主存储器'
+date = 2026-08-17T10:00:00+08:00
+lastmod = 2026-08-17T10:00:00+08:00
+draft = false
+weight = 32
 slug = '3-2 主存储器'
-summary = ''
+summary = '掌握DRAM的工作原理，从而知道为什么需要刷新，以及如何刷新，同时在存储器中的译码方式。'
 tags = []
-categories = []
+categories = ["计算机组成原理"]
 +++
 
 **重点**
