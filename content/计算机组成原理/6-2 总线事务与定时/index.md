@@ -12,7 +12,7 @@ weight = 62
 
 slug = "6-2 Bus Transactions and Timing"
 
-summary = ""
+summary = "计算总线传输数据的时间,同时区分同步通信和异步通信."
 
 tags = []
 

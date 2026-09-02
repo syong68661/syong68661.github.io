@@ -12,7 +12,7 @@ weight = 61
 
 slug = "6-1 Overview of Buses"
 
-summary = ""
+summary = "重点在于了解系统总线结构,以及计算总线工作频率."
 
 tags = []
 
